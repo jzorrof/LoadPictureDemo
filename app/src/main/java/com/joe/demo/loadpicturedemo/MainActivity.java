@@ -1,7 +1,10 @@
 package com.joe.demo.loadpicturedemo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
@@ -18,10 +21,10 @@ import com.android.volley.toolbox.Volley;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
-    private final static String TAG = "DEMO_Volley_";
 
     private ImageView mImageView;
     private NetworkImageView mNetworkImageView;
@@ -32,9 +35,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mImageView = (ImageView) findViewById(R.id.imageView);
         mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImageView);
-        showImageByNetworkImageView();//LOADPICDEMO
+        showImageByNetworkImageView();//load picture
         showJsonRequestResult();//JsonDemo
         showJsonArrayRequestResult(); //JsonArrayDemo
+        doTask();//confirm network connection
     }
 
 //Image
@@ -65,12 +69,12 @@ public class MainActivity extends Activity {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.e(TAG, "Json respose = " + response.toString());
+                Log.e(MyTools.TAG, "Json respose = " + response.toString());
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Json" + error);
+                Log.e(MyTools.TAG, "Json" + error);
             }
         });
         //Singleton
@@ -79,21 +83,48 @@ public class MainActivity extends Activity {
 
     //JsonArray
     private void showJsonArrayRequestResult(){
-        String url = "";
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, new Response.Listener<JSONArray>() {
+
+        String url = "http://121.40.223.11/mob/jcry?ajid=bba24ce7df7d42c882413477f571bbe3";
+        final JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                for(int i=0; i< response.length(); i++){
+                try {
+                    String []realname = new String[2];
+                    String [] mobile = new String[2];
 
+                    for(int i=0; i< response.length(); i++){
+                        JSONObject jsonObject = response.getJSONObject(i);
+                        realname[i] = jsonObject.getString("realname");
+                        mobile[i] = jsonObject.getString("mobile");
+                        Log.e(MyTools.TAG, "JsonObject from loop respose = " + response.toString());
+                        Log.v(MyTools.TAG, "realname: " + realname[i] + " mobile: " + mobile[i]);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                Log.e(TAG, "JsonArray respose = " + response.toString());
+
+                Log.e(MyTools.TAG, "JsonArray respose = " + response.toString());
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "JsonArray error = " + error);
+                Log.e(MyTools.TAG, "JsonArray error = " + error);
             }
         });
         MySingleton.getInstance(this).addToRequestQueue(jsonArrayRequest);
+    }
+
+    //HTTP
+    private final String urls = "http://www.baidu.com";
+    private void doTask(){
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            new DownloadTask().execute(urls); //Download Task
+            Log.e(MyTools.TAG, "connected");
+        } else {
+            Log.e(MyTools.TAG, "disconnect");
+        }
     }
 }
