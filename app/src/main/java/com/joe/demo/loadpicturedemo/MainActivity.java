@@ -1,14 +1,20 @@
 package com.joe.demo.loadpicturedemo;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.Spinner;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,21 +30,58 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
+
 public class MainActivity extends Activity {
 
     private ImageView mImageView;
     private NetworkImageView mNetworkImageView;
+    Spinner sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyTools.getTitleBarTwoBtn(this, "test", R.drawable.ic_launcher, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Log.v(MyTools.TAG, "ID: " + item.getItemId());
+                        switch (item.getItemId()) {
+                            case R.id.check_update:
+                                return true;
+                            case R.id.version:
+                                try {
+                                    Dialog dg = new Dialog(MainActivity.this);
+                                    dg.setTitle("Version:" + MyTools.getVersionName(getApplicationContext()));
+                                    dg.show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                return true;
+                            case R.id.update:
+                                doTask();
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.inflate(R.menu.menu);
+                popupMenu.show();
+            }
+        });
         setContentView(R.layout.activity_main);
         mImageView = (ImageView) findViewById(R.id.imageView);
         mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImageView);
         showImageByNetworkImageView();//load picture
         showJsonRequestResult();//JsonDemo
         showJsonArrayRequestResult(); //JsonArrayDemo
-        doTask();//confirm network connection
+        //doTask();//confirm network connection
+
+        String path = Environment.getExternalStorageDirectory().getPath() + "/update.apk";
+
     }
 
 //Image
@@ -115,13 +158,13 @@ public class MainActivity extends Activity {
     }
 
     //HTTP
-    private final String urls = "http://www.baidu.com";
+    private final String urls = "http://www.nduoa.com/apk/download/912990?from=ndoo";
     private void doTask(){
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadTask().execute(urls); //Download Task
+            new DownloadTask(this).execute(urls); //Download Task
             Log.e(MyTools.TAG, "connected");
         } else {
             Log.e(MyTools.TAG, "disconnect");

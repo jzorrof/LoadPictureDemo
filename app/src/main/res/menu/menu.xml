@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/update"
+        android:title="update"
+        android:visible="true"/>
+    <item
+        android:id="@+id/version"
+        android:title="version"
+        android:visible="true"/>
+    <item
+        android:id="@+id/check_update"
+        android:title="check update"
+        android:visible="true"/>
+</menu>
