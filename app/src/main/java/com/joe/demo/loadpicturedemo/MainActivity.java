@@ -31,12 +31,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 
     private ImageView mImageView;
     private NetworkImageView mNetworkImageView;
     Spinner sp;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +78,17 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mImageView = (ImageView) findViewById(R.id.imageView);
         mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImageView);
-        showImageByNetworkImageView();//load picture
-        showJsonRequestResult();//JsonDemo
-        showJsonArrayRequestResult(); //JsonArrayDemo
-        //doTask();//confirm network connection
+//        showImageByNetworkImageView();//load picture
+//        showJsonRequestResult();//JsonDemo
+//        showJsonArrayRequestResult(); //JsonArrayDemo
+//        //doTask();//confirm network connection
+//        String test = "1.2123123";
+//        String test2 = "0.12123";
+//        String path = Environment.getExternalStorageDirectory().getPath() + "/update.apk";
+//        float test3 = MyTools.StringtoFloat(test) + MyTools.StringtoFloat(test2);
+//        Log.e(MyTools.TAG, "test3" +  test3);
 
-        String path = Environment.getExternalStorageDirectory().getPath() + "/update.apk";
+        testWeatherDemo();
 
     }
 
@@ -108,11 +116,17 @@ public class MainActivity extends Activity {
 
 //Json
     private void showJsonRequestResult(){
-        String url = "";
+        String woeid = "202487889";
+
+        String url = "https://query.yahooapis.com/v1/public/yql?q=select%20item.condition%20from%20weather.forecast%20where%20" +
+                "woeid" +
+                "%20%3D%" +
+                woeid +
+                "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.e(MyTools.TAG, "Json respose = " + response.toString());
+                Log.e("Dangou", "Json respose = " + response.toString());
             }
         }, new Response.ErrorListener() {
             @Override
@@ -127,26 +141,37 @@ public class MainActivity extends Activity {
     //JsonArray
     private void showJsonArrayRequestResult(){
 
-        String url = "http://121.40.223.11/mob/jcry?ajid=bba24ce7df7d42c882413477f571bbe3";
-        final JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, new Response.Listener<JSONArray>() {
+//        Map<String, String> params = new HashMap<String, String>();
+//        params.put("q","select wind from weather.forecast where woeid=2460286");
+//        params.put("format","json");
+//        JSONObject jsonObject = new JSONObject(params);
+        String woeid = "202487889";
+
+        String url = "https://query.yahooapis.com/v1/public/yql?q=select%20item.condition%20from%20weather.forecast%20where%20" +
+                "woeid" +
+                "%20%3D%" +
+                woeid +
+                "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+        final JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url,new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    String []realname = new String[2];
-                    String [] mobile = new String[2];
-
-                    for(int i=0; i< response.length(); i++){
-                        JSONObject jsonObject = response.getJSONObject(i);
-                        realname[i] = jsonObject.getString("realname");
-                        mobile[i] = jsonObject.getString("mobile");
-                        Log.e(MyTools.TAG, "JsonObject from loop respose = " + response.toString());
-                        Log.v(MyTools.TAG, "realname: " + realname[i] + " mobile: " + mobile[i]);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                Log.e(MyTools.TAG, "JsonArray respose = " + response.toString());
+                Log.e("DANGOU", "GET: " + response.toString());
+//                try {
+//                    String []realname = new String[2];
+//                    String [] mobile = new String[2];
+//
+//                    for(int i=0; i< response.length(); i++){
+//                        JSONObject jsonObject = response.getJSONObject(i);
+//                        realname[i] = jsonObject.getString("realname");
+//                        mobile[i] = jsonObject.getString("mobile");
+//                        Log.e(MyTools.TAG, "JsonObject from loop respose = " + response.toString());
+//                        Log.v(MyTools.TAG, "realname: " + realname[i] + " mobile: " + mobile[i]);
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                Log.e(MyTools.TAG, "JsonArray respose = " + response.toString());
             }
         }, new Response.ErrorListener() {
             @Override
@@ -170,4 +195,14 @@ public class MainActivity extends Activity {
             Log.e(MyTools.TAG, "disconnect");
         }
     }
+
+    //Yahoo wetherapi
+    //curl https://query.yahooapis.com/v1/public/yql \
+//    -d q="select wind from weather.forecast where woeid=2460286" \
+//            -d format=json
+    private void testWeatherDemo(){
+        showJsonRequestResult();
+
+    }
+
 }

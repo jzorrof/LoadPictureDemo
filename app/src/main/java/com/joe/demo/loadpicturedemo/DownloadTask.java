@@ -2,6 +2,7 @@ package com.joe.demo.loadpicturedemo;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -66,7 +67,8 @@ public class DownloadTask extends AsyncTask<String, Integer, String>{
             is.close();
 
         } catch (Exception e){
-            downloadUrl(myurl);
+            //if(!isCancelled())
+                //downloadUrl(myurl);
             Log.e(MyTools.TAG, e.toString());
         }
         return null;
@@ -78,6 +80,12 @@ public class DownloadTask extends AsyncTask<String, Integer, String>{
         pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pd.setTitle("ProgressDialog");
         pd.setMessage("Download file ...");
+        pd.setButton(DialogInterface.BUTTON_NEGATIVE,"取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                cancel(true);
+            }
+        });
         pd.setCancelable(false);
         pd.show();
 
@@ -102,7 +110,8 @@ public class DownloadTask extends AsyncTask<String, Integer, String>{
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         pd.dismiss();
-        MyTools.packageInstall(cxt, path);//package install
+        if(!isCancelled())
+            MyTools.packageInstall(cxt, path);//package install
 
     }
 

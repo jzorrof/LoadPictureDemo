@@ -70,5 +70,14 @@ public class MyTools {
         Log.v(TAG, "verion:" + version);
         return version;
     }
+
+    public static float StringtoFloat(String str){
+        try{
+            float f = Float.parseFloat(str);
+            return f;
+        }catch(Exception e){
+            return 0;
+        }
+    }
 }
 
